@@ -89,7 +89,7 @@ private constructor(context: Context) : SharedPreferences.OnSharedPreferenceChan
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         for (onISharedListener in onISharedListeners) {
-            onISharedListener?.onKeyChangeListener(sharedPreferences, key)
+            onISharedListener.onKeyChangeListener(sharedPreferences, key)
         }
     }
 
