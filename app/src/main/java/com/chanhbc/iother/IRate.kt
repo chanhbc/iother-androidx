@@ -108,7 +108,7 @@ class IRate @JvmOverloads constructor(
         this.show()
     }
 
-    override fun onCreate(savedInstanceState: Bundle) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         try {
             if (window != null) {
