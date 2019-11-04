@@ -327,32 +327,6 @@ class IOther private constructor(private val context: Context) {
         context.sendBroadcast(mediaScanIntent)
     }
 
-    fun saveBitmapCache(bitmap: Bitmap) {
-        // save bitmap to cache directory
-        saveBitmapCache("image_cache", bitmap)
-    }
-
-    fun saveBitmapCache(fileName: String, bitmap: Bitmap) {
-        // save bitmap to cache directory
-        val cachePath = File(context.cacheDir, "images")
-        saveBitmapCache(cachePath, fileName, bitmap)
-    }
-
-    fun saveBitmapCache(filePath: File, fileName: String, bitmap: Bitmap) {
-        try {
-            if (!filePath.exists()) {
-                if (!filePath.mkdirs()) {
-                    ILog.e("create directory fail")
-                }
-            }
-            val stream = FileOutputStream("$filePath/$fileName.png")
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-            stream.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-
-    }
 
     fun shareBitmapCache() {
         val imagePath = File(context.cacheDir, "images")
@@ -408,6 +382,17 @@ class IOther private constructor(private val context: Context) {
         this.startActivity(Intent.createChooser(emailIntent, "Send mail Report App !"))
     }
 
+    fun saveBitmapCache(bitmap: Bitmap) {
+        // save bitmap to cache directory
+        saveBitmapCache(bitmap, "image_cache")
+    }
+
+    fun saveBitmapCache(bitmap: Bitmap, fileName: String) {
+        // save bitmap to cache directory
+        val filePath = File(context.cacheDir, "images")
+        saveBitmapPNG(bitmap, filePath, fileName)
+    }
+
     companion object {
         @SuppressLint("StaticFieldLeak")
         private var instance: IOther? = null
@@ -459,35 +444,86 @@ class IOther private constructor(private val context: Context) {
             return bitmap
         }
 
-        fun saveBitmap(bmp: Bitmap, folder: String, name: String): File {
+        fun saveBitmapPNG(bitmap: Bitmap) {
+            saveBitmap(bitmap, Bitmap.CompressFormat.PNG)
+        }
+
+        fun saveBitmap(bitmap: Bitmap, compressFormat: Bitmap.CompressFormat) {
             val path = (Environment.getExternalStorageDirectory().toString()
-                    + "/" + folder + "/")
-            val f = File(path)
-            if (!f.exists()) {
-                if (!f.mkdirs()) {
-                    ILog.e("Create directory fail")
-                }
-            }
+                    + IConstant.SLASH + Environment.DIRECTORY_PICTURES + IConstant.SLASH)
+            val filePath = File(path)
             @SuppressLint("SimpleDateFormat")
             val sdf = SimpleDateFormat("_HH_mm_ss_dd_MM_yyyy")
             val currentDateAndTime = sdf.format(Date())
-            val fileName = name + currentDateAndTime
-            val file = File(path, "$fileName.png")
-            if (file.exists()) {
-                if (!file.delete()) {
-                    ILog.e("delete \"$fileName\" error")
-                }
-            }
+            val fileName = "IMG$currentDateAndTime"
+            saveBitmap(bitmap, filePath, fileName, compressFormat)
+        }
+
+        fun saveBitmapPNG(bitmap: Bitmap, fileName: String) {
+            saveBitmap(bitmap, fileName, Bitmap.CompressFormat.PNG)
+        }
+
+        fun saveBitmap(bitmap: Bitmap, fileName: String, compressFormat: Bitmap.CompressFormat) {
+            val path = (Environment.getExternalStorageDirectory().toString()
+                    + IConstant.SLASH + Environment.DIRECTORY_PICTURES + IConstant.SLASH)
+            val filePath = File(path)
+            saveBitmap(bitmap, filePath, fileName, compressFormat)
+        }
+
+        fun saveBitmapPNG(bitmap: Bitmap, folder: String, fileName: String) {
+            saveBitmap(bitmap, folder, fileName, Bitmap.CompressFormat.PNG)
+        }
+
+        fun saveBitmap(
+            bitmap: Bitmap,
+            folder: String,
+            fileName: String,
+            compressFormat: Bitmap.CompressFormat
+        ) {
+            val path = (Environment.getExternalStorageDirectory().toString()
+                    + IConstant.SLASH + folder + IConstant.SLASH)
+            val filePath = File(path)
+            saveBitmap(bitmap, filePath, fileName, compressFormat)
+        }
+
+        fun saveBitmapPNG(bitmap: Bitmap, filePath: File, fileName: String) {
+            saveBitmap(bitmap, filePath, fileName, Bitmap.CompressFormat.PNG)
+        }
+
+        fun saveBitmap(
+            bitmap: Bitmap,
+            filePath: File,
+            fileName: String,
+            compressFormat: Bitmap.CompressFormat
+        ) {
             try {
-                val outStream = FileOutputStream(file)
-                bmp.compress(Bitmap.CompressFormat.PNG, 100, outStream)
-                outStream.flush()
-                outStream.close()
-            } catch (e: Exception) {
+                if (!filePath.exists()) {
+                    if (!filePath.mkdirs()) {
+                        ILog.e("create directory fail")
+                    }
+                }
+                val fileNameExtension: String
+                when (compressFormat) {
+                    Bitmap.CompressFormat.JPEG -> fileNameExtension = ".jpg"
+
+                    Bitmap.CompressFormat.WEBP -> fileNameExtension = ".webp"
+
+                    else -> fileNameExtension = ".png"
+                }
+                val file =
+                    File(filePath.toString() + IConstant.SLASH + fileName + fileNameExtension)
+                if (file.exists()) {
+                    if (!file.delete()) {
+                        ILog.e("delete \"$fileName\" error")
+                    }
+                }
+                val stream = FileOutputStream(file)
+                bitmap.compress(compressFormat, 100, stream)
+                stream.close()
+            } catch (e: IOException) {
                 e.printStackTrace()
             }
 
-            return file
         }
 
         fun getBitmapResize(bitmap: Bitmap, max: Int, filter: Boolean): Bitmap {
