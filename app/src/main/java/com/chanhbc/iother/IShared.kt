@@ -7,84 +7,77 @@ import java.util.*
 
 class IShared @SuppressLint("CommitPrefEdits")
 private constructor(context: Context) : SharedPreferences.OnSharedPreferenceChangeListener {
-    private var mSharedPreferences: SharedPreferences? = null
-    private var mEditor: SharedPreferences.Editor? = null
+    private val mSharedPreferences: SharedPreferences
+    private val mEditor: SharedPreferences.Editor
 
     private val onISharedListeners = ArrayList<OnISharedListener>()
 
     init {
         this.mSharedPreferences =
             context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
-        this.mEditor = this.mSharedPreferences!!.edit()
+        this.mEditor = this.mSharedPreferences.edit()
         registerChangeListener()
     }
 
-    fun release() {
-        unregisterChangeListener()
-        this.mEditor = null
-        this.mSharedPreferences = null
-        instance = null
-    }
-
     private fun registerChangeListener() {
-        this.mSharedPreferences!!.registerOnSharedPreferenceChangeListener(this)
+        this.mSharedPreferences.registerOnSharedPreferenceChangeListener(this)
     }
 
     private fun unregisterChangeListener() {
-        this.mSharedPreferences!!.unregisterOnSharedPreferenceChangeListener(this)
+        this.mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     fun removeKey(key: String) {
-        this.mEditor!!.remove(key).apply()
+        this.mEditor.remove(key).apply()
     }
 
     fun clear() {
-        this.mEditor!!.clear().apply()
+        this.mEditor.clear().apply()
     }
 
     @JvmOverloads
     fun getBoolean(key: String, defaultValue: Boolean = false): Boolean {
-        return this.mSharedPreferences!!.getBoolean(key, defaultValue)
+        return this.mSharedPreferences.getBoolean(key, defaultValue)
     }
 
     fun putBoolean(key: String, value: Boolean) {
-        this.mEditor!!.putBoolean(key, value).commit()
+        this.mEditor.putBoolean(key, value).commit()
     }
 
     @JvmOverloads
     fun getInt(key: String, defaultValue: Int = 0): Int {
-        return this.mSharedPreferences!!.getInt(key, defaultValue)
+        return this.mSharedPreferences.getInt(key, defaultValue)
     }
 
     fun putInt(key: String, value: Int) {
-        this.mEditor!!.putInt(key, value).commit()
+        this.mEditor.putInt(key, value).commit()
     }
 
     @JvmOverloads
     fun getLong(key: String, defaultValue: Long = 0): Long {
-        return this.mSharedPreferences!!.getLong(key, defaultValue)
+        return this.mSharedPreferences.getLong(key, defaultValue)
     }
 
     fun putLong(key: String, value: Long) {
-        this.mEditor!!.putLong(key, value).commit()
+        this.mEditor.putLong(key, value).commit()
     }
 
     @JvmOverloads
     fun getFloat(key: String, defaultValue: Float = 0.0f): Float {
-        return this.mSharedPreferences!!.getFloat(key, defaultValue)
+        return this.mSharedPreferences.getFloat(key, defaultValue)
     }
 
     fun putFloat(key: String, value: Float) {
-        this.mEditor!!.putFloat(key, value).commit()
+        this.mEditor.putFloat(key, value).commit()
     }
 
     @JvmOverloads
-    fun getString(key: String, defaultValue: String = ""): String? {
-        return this.mSharedPreferences!!.getString(key, defaultValue)
+    fun getString(key: String, defaultValue: String = IConstant.EMPTY): String {
+        return this.mSharedPreferences.getString(key, defaultValue) ?: defaultValue
     }
 
     fun putString(key: String, value: String) {
-        this.mEditor!!.putString(key, value).commit()
+        this.mEditor.putString(key, value).commit()
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
@@ -111,13 +104,13 @@ private constructor(context: Context) : SharedPreferences.OnSharedPreferenceChan
     }
 
     companion object {
-        private var instance: IShared? = null
+        private lateinit var instance: IShared
 
         fun getInstance(context: Context): IShared {
-            if (instance == null) {
+            if (!::instance.isInitialized) {
                 instance = IShared(context)
             }
-            return instance!!
+            return instance
         }
     }
 }

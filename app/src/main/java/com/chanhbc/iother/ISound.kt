@@ -24,13 +24,13 @@ class ISound private constructor(private val context: Context) {
 
     companion object {
         @SuppressLint("StaticFieldLeak")
-        private var instance: ISound? = null
+        private lateinit var instance: ISound
 
         fun getInstance(context: Context): ISound {
-            if (instance == null) {
+            if (!::instance.isInitialized) {
                 instance = ISound(context)
             }
-            return instance!!
+            return instance
         }
     }
 }

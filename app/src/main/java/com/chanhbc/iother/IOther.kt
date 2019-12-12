@@ -350,7 +350,7 @@ class IOther private constructor(private val context: Context) {
     }
 
     @JvmOverloads
-    fun toast(s: Any, time: Int = Toast.LENGTH_SHORT) {
+    fun toast(vararg s: Any?, time: Int = Toast.LENGTH_SHORT) {
         Toast.makeText(context, s.toString(), time).show()
     }
 
@@ -395,20 +395,13 @@ class IOther private constructor(private val context: Context) {
 
     companion object {
         @SuppressLint("StaticFieldLeak")
-        private var instance: IOther? = null
+        private lateinit var instance: IOther
 
-        fun getInstance(context: Context?): IOther {
-            if (context == null) {
-                throw RuntimeException("Context null, Please install different context")
-            }
-            if (instance == null) {
+        fun getInstance(context: Context): IOther {
+            if (!::instance.isInitialized) {
                 instance = IOther(context)
             }
-            return instance!!
-        }
-
-        fun release() {
-            instance = null
+            return instance
         }
 
         fun convertPercentToHex(percent: Float): String {

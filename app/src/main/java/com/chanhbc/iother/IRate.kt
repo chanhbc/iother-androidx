@@ -9,7 +9,9 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.view.Window
-import android.widget.*
+import android.widget.LinearLayout
+import android.widget.RatingBar
+import android.widget.Toast
 import kotlinx.android.synthetic.main.dialog_rate.*
 
 class IRate @JvmOverloads constructor(
@@ -52,20 +54,15 @@ class IRate @JvmOverloads constructor(
     }
 
     private fun initDialog() {
-        val btnOk = findViewById<Button>(R.id.btn_ok)
-        val btnNotNow = findViewById<Button>(R.id.btn_cancel)
-        val txtAppName = findViewById<TextView>(R.id.txt_name_app)
-        val imageIcon = findViewById<ImageView>(R.id.img_icon_app)
-
         val drawable = IOther.getInstance(mContext).applicationDrawable
         if (drawable != null) {
-            imageIcon.setImageDrawable(drawable)
+            img_icon_app.setImageDrawable(drawable)
         }
-        txtAppName.text = IOther.getInstance(mContext).appName
+        txt_name_app.text = IOther.getInstance(mContext).appName
         val stars = ratingBar.progressDrawable as LayerDrawable
         stars.getDrawable(2).setColorFilter(Color.parseColor("#ff2d54"), PorterDuff.Mode.SRC_ATOP)
         stars.getDrawable(0).setColorFilter(Color.parseColor("#B0B0B6"), PorterDuff.Mode.SRC_ATOP)
-        btnOk.setOnClickListener {
+        btn_ok.setOnClickListener {
             if (ratingBar.rating == 0f) {
                 Toast.makeText(
                     mContext,
@@ -82,7 +79,7 @@ class IRate @JvmOverloads constructor(
                 dismiss()
             }
         }
-        btnNotNow.setOnClickListener {
+        btn_cancel.setOnClickListener {
             dismiss()
             if (isExit) {
                 finish()
@@ -90,11 +87,16 @@ class IRate @JvmOverloads constructor(
         }
         ratingBar.onRatingBarChangeListener =
             RatingBar.OnRatingBarChangeListener { _, rating, _ ->
-                btnOk.text = if (rating > numberStar)
+                btn_ok.text = if (rating > numberStar)
                     mContext.getString(R.string.rate)
                 else
                     mContext.getString(R.string.feedback)
             }
+        setRateNumber(5)
+    }
+
+    private fun setRateNumber(rateNumber: Int) {
+        ratingBar.setNumStars(rateNumber)
     }
 
     private fun finish() {
@@ -105,6 +107,12 @@ class IRate @JvmOverloads constructor(
 
     fun show(exit: Boolean) {
         this.isExit = exit
+        val textId = if (isExit) {
+            R.string.exit
+        } else {
+            R.string.cancel
+        }
+        btn_cancel.setText(textId)
         this.show()
     }
 

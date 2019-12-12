@@ -10,7 +10,6 @@ object IFontUtil {
         } catch (e: Exception) {
             null
         }
-
     }
 
     fun getTypeface(context: Context, name: String, format: Int): Typeface? {

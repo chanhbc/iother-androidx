@@ -3,6 +3,7 @@ package com.chanhbc.iother
 import android.app.Application
 import android.content.Context
 
+@Deprecated("Application is no longer used in AndroidX")
 open class IApp : Application() {
     init {
         instance = this

@@ -39,6 +39,5 @@ open class IButton @JvmOverloads constructor(
         } catch (e: Exception) {
             ILog.e(e)
         }
-
     }
 }

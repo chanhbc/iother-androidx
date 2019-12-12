@@ -2,6 +2,8 @@ package com.chanhbc.iother
 
 object IConstant {
 
+    const val INDEX_NOT_FOUND = -1
+    const val INDEX_FIRST = 0
     const val ANDROID_SCHEMA = "http://schemas.android.com/apk/res/android"
     const val PERMISSION_AUTO_START = "permission_auto_start"
     const val REQUEST_CODE_DRAW_OVERLAY_PERMISSIONS = 6996
