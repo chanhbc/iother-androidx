@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.regex.Pattern
 
+@Suppress("unused", "MemberVisibilityCanBePrivate", "SameParameterValue")
 class IOther private constructor(private val context: Context) {
 
     val appName: String
@@ -61,7 +62,11 @@ class IOther private constructor(private val context: Context) {
             try {
                 val packageName = context.packageName
                 val info = context.packageManager.getPackageInfo(packageName, 0)
-                return info.versionCode
+                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    info.longVersionCode.toInt()
+                } else {
+                    info.versionCode
+                }
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
             }
@@ -109,6 +114,7 @@ class IOther private constructor(private val context: Context) {
             } else 0
         }
 
+    @Deprecated("No longer used")
     @SuppressLint("MissingPermission")
     fun runVibrate(millisecond: Long) {
         val v = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
@@ -119,6 +125,7 @@ class IOther private constructor(private val context: Context) {
      * MyService.class.toString().replace("class ", "")
      */
 
+    @SuppressLint("DefaultLocale")
     fun checkServiceRunning(str: String): Boolean {
         val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val services = manager.getRunningServices(Integer.MAX_VALUE)
@@ -252,7 +259,7 @@ class IOther private constructor(private val context: Context) {
                 val alertDialog = AlertDialog.Builder(contextActivity)
                     .setTitle("Notification")
                     .setMessage("Device Xiaomi need auto start permission, you can turn on this permission?")
-                    .setPositiveButton("Yes") { dialog, which ->
+                    .setPositiveButton("Yes") { dialog, _ ->
                         dialog.dismiss()
                         val intent = Intent()
                         intent.component = ComponentName(
@@ -263,7 +270,7 @@ class IOther private constructor(private val context: Context) {
                         IShared.getInstance(context)
                             .putBoolean(IConstant.PERMISSION_AUTO_START, true)
                     }
-                    .setNegativeButton("No") { dialog, which -> dialog.dismiss() }.create()
+                    .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }.create()
                 alertDialog.show()
             }
         }
@@ -272,7 +279,7 @@ class IOther private constructor(private val context: Context) {
                 val alertDialog = AlertDialog.Builder(contextActivity)
                     .setTitle("Notification")
                     .setMessage("Device Huawei need protected permission, you can turn on this permission?")
-                    .setPositiveButton("Yes") { dialog, which ->
+                    .setPositiveButton("Yes") { dialog, _ ->
                         dialog.dismiss()
                         val intent = Intent()
                         intent.setClassName(
@@ -283,7 +290,7 @@ class IOther private constructor(private val context: Context) {
                         IShared.getInstance(context)
                             .putBoolean(IConstant.PERMISSION_AUTO_START, true)
                     }
-                    .setNegativeButton("No") { dialog, which -> dialog.dismiss() }.create()
+                    .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }.create()
                 alertDialog.show()
             }
         }
@@ -294,7 +301,7 @@ class IOther private constructor(private val context: Context) {
             val alertDialog = AlertDialog.Builder(contextActivity)
                 .setTitle("Permission")
                 .setMessage("Application need draw overlays permission, you can turn on this permission?")
-                .setPositiveButton("Yes") { dialog, which ->
+                .setPositiveButton("Yes") { dialog, _ ->
                     dialog.dismiss()
                     val intent = Intent(
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
@@ -306,7 +313,7 @@ class IOther private constructor(private val context: Context) {
                         IConstant.REQUEST_CODE_DRAW_OVERLAY_PERMISSIONS
                     )
                 }
-                .setNegativeButton("No") { dialog, which -> dialog.dismiss() }.create()
+                .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }.create()
             alertDialog.show()
             return false
         }
@@ -327,6 +334,9 @@ class IOther private constructor(private val context: Context) {
         context.sendBroadcast(mediaScanIntent)
     }
 
+    fun getPathFile(folder: String?): String {
+        return context.getExternalFilesDir(folder).absolutePath
+    }
 
     fun shareBitmapCache() {
         val imagePath = File(context.cacheDir, "images")
@@ -361,7 +371,6 @@ class IOther private constructor(private val context: Context) {
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
         }
-
         toast(version)
     }
 
@@ -391,6 +400,16 @@ class IOther private constructor(private val context: Context) {
         // save bitmap to cache directory
         val filePath = File(context.cacheDir, "images")
         saveBitmapPNG(bitmap, filePath, fileName)
+    }
+
+    fun getDirCacheImage(fileName: String): String {
+        return getDirCacheFile("images", fileName, ".png")
+    }
+
+    fun getDirCacheFile(folder: String, fileName: String, fileNameExtension: String): String {
+        val filePath = File(context.cacheDir, folder)
+        val file = File(filePath.toString() + IConstant.SLASH + fileName + fileNameExtension)
+        return file.absolutePath
     }
 
     companion object {
@@ -495,13 +514,12 @@ class IOther private constructor(private val context: Context) {
                         ILog.e("create directory fail")
                     }
                 }
-                val fileNameExtension: String
-                when (compressFormat) {
-                    Bitmap.CompressFormat.JPEG -> fileNameExtension = ".jpg"
+                val fileNameExtension: String = when (compressFormat) {
+                    Bitmap.CompressFormat.JPEG -> ".jpg"
 
-                    Bitmap.CompressFormat.WEBP -> fileNameExtension = ".webp"
+                    Bitmap.CompressFormat.WEBP -> ".webp"
 
-                    else -> fileNameExtension = ".png"
+                    else -> ".png"
                 }
                 val file =
                     File(filePath.toString() + IConstant.SLASH + fileName + fileNameExtension)
@@ -516,7 +534,6 @@ class IOther private constructor(private val context: Context) {
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-
         }
 
         fun getBitmapResize(bitmap: Bitmap, max: Int, filter: Boolean): Bitmap {
@@ -530,74 +547,78 @@ class IOther private constructor(private val context: Context) {
         }
 
         fun unAccent(s: String): String {
-            var s = s
+            var str = s
             // option special 'Đ-đ' :))
-            s = s.replace("Đ", "D").replace("đ", "d")
-            val temp = Normalizer.normalize(s, Normalizer.Form.NFD)
+            str = str.replace("Đ", "D").replace("đ", "d")
+            val temp = Normalizer.normalize(str, Normalizer.Form.NFD)
             val pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
             return pattern.matcher(temp).replaceAll("")
         }
 
         fun getTimeFormat(timeMilli: Long): String {
-            var timeMilli = timeMilli
-            timeMilli /= 1000 // milli second
+            var tmMilli = timeMilli
+            tmMilli /= 1000 // milli second
             var tm = ""
             val s: Long
             var m: Long
             val h: Long
-            s = timeMilli % 60
-            m = (timeMilli - s) / 60
+            s = tmMilli % 60
+            m = (tmMilli - s) / 60
             if (m >= 60) {
                 h = m / 60
-                m = m % 60
-                if (h < 10)
-                    tm += "0$h:"
+                m %= 60
+                tm += if (h < 10)
+                    "0$h:"
                 else
-                    tm += "$h:"
+                    "$h:"
             }
-            if (m < 10)
-                tm += "0$m:"
+            tm += if (m < 10)
+                "0$m:"
             else
-                tm += "$m:"
-            if (s < 10)
-                tm += "0$s"
-            else
-                tm += s.toString() + ""
-            return tm
-        }
-
-        fun getTimeFormatMilliseconds(timeMilli: Long): String {
-            var timeMilli = timeMilli
-            val ml = (timeMilli % 1000).toInt()
-            timeMilli /= 1000 // milli second
-            var tm = ""
-            val s: Long
-            var m: Long
-            val h: Long
-            s = timeMilli % 60
-            m = (timeMilli - s) / 60
-            if (m >= 60) {
-                h = m / 60
-                m = m % 60
-                if (h < 10)
-                    tm += "0$h:"
-                else
-                    tm += "$h:"
-            }
-            if (m < 10)
-                tm += "0$m:"
-            else
-                tm += "$m:"
+                "$m:"
             tm += if (s < 10)
                 "0$s"
             else
                 s.toString() + ""
-            return if (ml < 10) {
-                "$tm.00$ml"
-            } else if (ml < 100) {
-                "$tm.0$ml"
-            } else {
-                "$tm.$ml"
+            return tm
+        }
+
+        fun getTimeFormatMilliseconds(timeMilli: Long): String {
+            var tmMilli = timeMilli
+            val ml = (tmMilli % 1000).toInt()
+            tmMilli /= 1000 // milli second
+            var tm = ""
+            val s: Long
+            var m: Long
+            val h: Long
+            s = tmMilli % 60
+            m = (tmMilli - s) / 60
+            if (m >= 60) {
+                h = m / 60
+                m %= 60
+                tm += if (h < 10)
+                    "0$h:"
+                else
+                    "$h:"
+            }
+            tm += if (m < 10)
+                "0$m:"
+            else
+                "$m:"
+            tm += if (s < 10)
+                "0$s"
+            else
+                s.toString() + ""
+            return when {
+                ml < 10 -> {
+                    "$tm.00$ml"
+                }
+                ml < 100 -> {
+                    "$tm.0$ml"
+                }
+                else -> {
+                    "$tm.$ml"
+                }
             }
         }
     }

@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
@@ -14,6 +15,7 @@ import android.widget.RatingBar
 import android.widget.Toast
 import kotlinx.android.synthetic.main.dialog_rate.*
 
+@Suppress("unused", "MemberVisibilityCanBePrivate", "SameParameterValue")
 class IRate @JvmOverloads constructor(
     private val mContext: Context,
     private val email: String,
@@ -60,8 +62,8 @@ class IRate @JvmOverloads constructor(
         }
         txt_name_app.text = IOther.getInstance(mContext).appName
         val stars = ratingBar.progressDrawable as LayerDrawable
-        stars.getDrawable(2).setColorFilter(Color.parseColor("#ff2d54"), PorterDuff.Mode.SRC_ATOP)
-        stars.getDrawable(0).setColorFilter(Color.parseColor("#B0B0B6"), PorterDuff.Mode.SRC_ATOP)
+        stars.getDrawable(2).colorFilter = PorterDuffColorFilter(Color.parseColor("#ff2d54"), PorterDuff.Mode.SRC_ATOP)
+        stars.getDrawable(0).colorFilter = PorterDuffColorFilter(Color.parseColor("#B0B0B6"), PorterDuff.Mode.SRC_ATOP)
         btn_ok.setOnClickListener {
             if (ratingBar.rating == 0f) {
                 Toast.makeText(
@@ -96,7 +98,7 @@ class IRate @JvmOverloads constructor(
     }
 
     private fun setRateNumber(rateNumber: Int) {
-        ratingBar.setNumStars(rateNumber)
+        ratingBar.numStars = rateNumber
     }
 
     private fun finish() {

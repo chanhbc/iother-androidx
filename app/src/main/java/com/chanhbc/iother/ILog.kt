@@ -2,6 +2,7 @@ package com.chanhbc.iother
 
 import android.util.Log
 
+@Suppress("unused", "MemberVisibilityCanBePrivate", "SameParameterValue", "ClassName")
 object ILog {
 
     private var enabled = true

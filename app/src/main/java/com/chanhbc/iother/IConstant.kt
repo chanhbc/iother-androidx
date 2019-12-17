@@ -1,5 +1,6 @@
 package com.chanhbc.iother
 
+@Suppress("unused")
 object IConstant {
 
     const val INDEX_NOT_FOUND = -1

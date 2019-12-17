@@ -3,6 +3,7 @@ package com.chanhbc.iother
 import android.content.Context
 import android.graphics.Typeface
 
+@Suppress("unused", "MemberVisibilityCanBePrivate", "SameParameterValue")
 object IFontUtil {
     fun getTypeface(context: Context, name: String): Typeface? {
         return try {

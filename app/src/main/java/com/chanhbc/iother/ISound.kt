@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.media.MediaPlayer
 
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 class ISound private constructor(private val context: Context) {
     private var mediaPlayer: MediaPlayer? = null
 
