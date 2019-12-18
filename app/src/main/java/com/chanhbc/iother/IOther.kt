@@ -40,7 +40,6 @@ class IOther private constructor(private val context: Context) {
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
             }
-
             return ""
         }
 
@@ -53,7 +52,6 @@ class IOther private constructor(private val context: Context) {
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
             }
-
             return ""
         }
 
@@ -70,7 +68,6 @@ class IOther private constructor(private val context: Context) {
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
             }
-
             return 0
         }
 
@@ -82,12 +79,11 @@ class IOther private constructor(private val context: Context) {
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
             }
-
             return null
         }
 
     val applicationBitmap: Bitmap?
-        get() = drawableToBitmap(applicationDrawable)
+        get() = applicationDrawable?.let { drawableToBitmap(it) }
 
     val statusBarHeight: Int
         get() {
@@ -148,15 +144,13 @@ class IOther private constructor(private val context: Context) {
     }
 
     fun isPackageInstalled(packageName: String): Boolean {
-        var isInstalled = false
         try {
             context.packageManager.getPackageInfo(packageName, 0)
-            isInstalled = true
+            return true
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
         }
-
-        return isInstalled
+        return false
     }
 
     fun openMarket() {
@@ -235,7 +229,6 @@ class IOther private constructor(private val context: Context) {
         } catch (e: ActivityNotFoundException) {
             e.printStackTrace()
         }
-
     }
 
     private fun startActivityForResult(
@@ -248,7 +241,6 @@ class IOther private constructor(private val context: Context) {
         } catch (e: ActivityNotFoundException) {
             e.printStackTrace()
         }
-
     }
 
     fun checkPermission(contextActivity: Context) {
@@ -334,8 +326,8 @@ class IOther private constructor(private val context: Context) {
         context.sendBroadcast(mediaScanIntent)
     }
 
-    fun getPathFile(folder: String?): String {
-        return context.getExternalFilesDir(folder).absolutePath
+    fun getPathFile(folder: String?): String? {
+        return context.getExternalFilesDir(folder)?.absolutePath
     }
 
     fun shareBitmapCache() {
@@ -391,19 +383,41 @@ class IOther private constructor(private val context: Context) {
         this.startActivity(Intent.createChooser(emailIntent, "Send mail Report App !"))
     }
 
-    fun saveBitmapCache(bitmap: Bitmap) {
-        // save bitmap to cache directory
-        saveBitmapCache(bitmap, "image_cache")
+    fun saveBitmapCache(bitmap: Bitmap, compressFormat: Bitmap.CompressFormat) {
+        saveBitmapCache(bitmap, "image_cache", compressFormat)
     }
 
-    fun saveBitmapCache(bitmap: Bitmap, fileName: String) {
-        // save bitmap to cache directory
+    fun saveBitmapCache(bitmap: Bitmap, fileName: String, compressFormat: Bitmap.CompressFormat) {
         val filePath = File(context.cacheDir, "images")
-        saveBitmapPNG(bitmap, filePath, fileName)
+        saveBitmap(bitmap, filePath, fileName, compressFormat)
     }
 
-    fun getDirCacheImage(fileName: String): String {
-        return getDirCacheFile("images", fileName, ".png")
+    fun saveBitmapCachePNG(bitmap: Bitmap) {
+        saveBitmapCache(bitmap, "image_cache", Bitmap.CompressFormat.PNG)
+    }
+
+    fun saveBitmapCachePNG(bitmap: Bitmap, fileName: String) {
+        val filePath = File(context.cacheDir, "images")
+        saveBitmap(bitmap, filePath, fileName, Bitmap.CompressFormat.PNG)
+    }
+
+    fun getDirCacheImage(fileName: String, compressFormat: Bitmap.CompressFormat): String {
+        val fileNameExtension = when (compressFormat) {
+            Bitmap.CompressFormat.JPEG -> {
+                ".jpeg"
+            }
+            Bitmap.CompressFormat.WEBP -> {
+                ".webp"
+            }
+            else -> {
+                ".png"
+            }
+        }
+        return getDirCacheFile("images", fileName, fileNameExtension)
+    }
+
+    fun getDirCacheImagePNG(fileName: String): String {
+        return getDirCacheImage(fileName, Bitmap.CompressFormat.PNG)
     }
 
     fun getDirCacheFile(folder: String, fileName: String, fileNameExtension: String): String {
@@ -435,15 +449,12 @@ class IOther private constructor(private val context: Context) {
             return hex
         }
 
-        fun drawableToBitmap(drawable: Drawable?): Bitmap? {
+        fun drawableToBitmap(drawable: Drawable): Bitmap? {
             if (drawable is BitmapDrawable) {
-                val bitmapDrawable = drawable.bitmap
-                if (bitmapDrawable != null) {
-                    return bitmapDrawable
-                }
+                return drawable.bitmap
             }
             var bitmap: Bitmap? = null
-            if (drawable!!.intrinsicWidth > 0 || drawable.intrinsicHeight > 0) {
+            if (drawable.intrinsicWidth * drawable.intrinsicHeight != 0) {
                 bitmap = Bitmap.createBitmap(
                     drawable.intrinsicWidth,
                     drawable.intrinsicHeight,
