@@ -29,13 +29,13 @@ import java.util.*
 import java.util.regex.Pattern
 
 @Suppress("unused", "MemberVisibilityCanBePrivate", "SameParameterValue")
-class IOther private constructor(private val context: Context) {
+class IOther private constructor(private val mContext: Context) {
 
     val appName: String
         get() {
             try {
-                val packageManager = context.packageManager
-                val applicationInfo = packageManager.getApplicationInfo(context.packageName, 0)
+                val packageManager = mContext.packageManager
+                val applicationInfo = packageManager.getApplicationInfo(mContext.packageName, 0)
                 return packageManager.getApplicationLabel(applicationInfo).toString()
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
@@ -46,8 +46,8 @@ class IOther private constructor(private val context: Context) {
     val versionName: String
         get() {
             try {
-                val packageName = context.packageName
-                val info = context.packageManager.getPackageInfo(packageName, 0)
+                val packageName = mContext.packageName
+                val info = mContext.packageManager.getPackageInfo(packageName, 0)
                 return info.versionName
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
@@ -58,8 +58,8 @@ class IOther private constructor(private val context: Context) {
     val versionCode: Int
         get() {
             try {
-                val packageName = context.packageName
-                val info = context.packageManager.getPackageInfo(packageName, 0)
+                val packageName = mContext.packageName
+                val info = mContext.packageManager.getPackageInfo(packageName, 0)
                 return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     info.longVersionCode.toInt()
                 } else {
@@ -74,8 +74,8 @@ class IOther private constructor(private val context: Context) {
     val applicationDrawable: Drawable?
         get() {
             try {
-                val packageManager = context.packageManager
-                return packageManager.getApplicationIcon(context.packageName)
+                val packageManager = mContext.packageManager
+                return packageManager.getApplicationIcon(mContext.packageName)
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
             }
@@ -88,32 +88,32 @@ class IOther private constructor(private val context: Context) {
     val statusBarHeight: Int
         get() {
             val resourceId =
-                context.resources.getIdentifier("status_bar_height", "dimen", "android")
+                mContext.resources.getIdentifier("status_bar_height", "dimen", "android")
             return if (resourceId > 0) {
-                context.resources.getDimensionPixelSize(resourceId)
+                mContext.resources.getDimensionPixelSize(resourceId)
             } else 0
         }
 
     val navigationBarHeight: Int
         get() {
-            val isNavigationBar = context.resources.getBoolean(
-                context.resources.getIdentifier(
+            val isNavigationBar = mContext.resources.getBoolean(
+                mContext.resources.getIdentifier(
                     "config_showNavigationBar",
                     "bool",
                     "android"
                 )
             )
             val resourceId =
-                context.resources.getIdentifier("navigation_bar_height", "dimen", "android")
+                mContext.resources.getIdentifier("navigation_bar_height", "dimen", "android")
             return if (resourceId > 0 && isNavigationBar) {
-                context.resources.getDimensionPixelSize(resourceId)
+                mContext.resources.getDimensionPixelSize(resourceId)
             } else 0
         }
 
     @Deprecated("No longer used")
     @SuppressLint("MissingPermission")
     fun runVibrate(millisecond: Long) {
-        val v = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        val v = mContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         v.vibrate(millisecond)
     }
 
@@ -123,7 +123,7 @@ class IOther private constructor(private val context: Context) {
 
     @SuppressLint("DefaultLocale")
     fun checkServiceRunning(str: String): Boolean {
-        val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val manager = mContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val services = manager.getRunningServices(Integer.MAX_VALUE)
         for (info in services) {
             if (info.service.className.toUpperCase() == str.toUpperCase()) {
@@ -140,12 +140,12 @@ class IOther private constructor(private val context: Context) {
     }
 
     fun getColorResource(id: Int): Int {
-        return ResourcesCompat.getColor(context.resources, id, null)
+        return ResourcesCompat.getColor(mContext.resources, id, null)
     }
 
     fun isPackageInstalled(packageName: String): Boolean {
         try {
-            context.packageManager.getPackageInfo(packageName, 0)
+            mContext.packageManager.getPackageInfo(packageName, 0)
             return true
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
@@ -154,7 +154,7 @@ class IOther private constructor(private val context: Context) {
     }
 
     fun openMarket() {
-        val appPackageName = context.packageName
+        val appPackageName = mContext.packageName
         openMarket(appPackageName)
     }
 
@@ -203,7 +203,7 @@ class IOther private constructor(private val context: Context) {
 
     fun getJsonFromAssets(path: String): String {
         try {
-            val inputStream = context.assets.open(path)
+            val inputStream = mContext.assets.open(path)
             val inputStreamReader = InputStreamReader(inputStream)
             val bufferedReader = BufferedReader(inputStreamReader)
             val stringBuilder = StringBuilder()
@@ -225,7 +225,7 @@ class IOther private constructor(private val context: Context) {
     private fun startActivity(activity: Intent) {
         try {
             activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(activity)
+            mContext.startActivity(activity)
         } catch (e: ActivityNotFoundException) {
             e.printStackTrace()
         }
@@ -247,7 +247,7 @@ class IOther private constructor(private val context: Context) {
         val manufacturerXiaomi = "xiaomi"
         val manufacturerHuawei = "huawei"
         if (manufacturerXiaomi.equals(Build.MANUFACTURER, ignoreCase = true)) {
-            if (!IShared.getInstance(context).getBoolean(IConstant.PERMISSION_AUTO_START, false)) {
+            if (!IShared.getInstance(mContext).getBoolean(IConstant.PERMISSION_AUTO_START, false)) {
                 val alertDialog = AlertDialog.Builder(contextActivity)
                     .setTitle("Notification")
                     .setMessage("Device Xiaomi need auto start permission, you can turn on this permission?")
@@ -259,7 +259,7 @@ class IOther private constructor(private val context: Context) {
                             "com.miui.permcenter.autostart.AutoStartManagementActivity"
                         )
                         this@IOther.startActivity(intent)
-                        IShared.getInstance(context)
+                        IShared.getInstance(mContext)
                             .putBoolean(IConstant.PERMISSION_AUTO_START, true)
                     }
                     .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }.create()
@@ -267,7 +267,7 @@ class IOther private constructor(private val context: Context) {
             }
         }
         if (manufacturerHuawei.equals(Build.MANUFACTURER, ignoreCase = true)) {
-            if (!IShared.getInstance(context).getBoolean(IConstant.PERMISSION_AUTO_START, false)) {
+            if (!IShared.getInstance(mContext).getBoolean(IConstant.PERMISSION_AUTO_START, false)) {
                 val alertDialog = AlertDialog.Builder(contextActivity)
                     .setTitle("Notification")
                     .setMessage("Device Huawei need protected permission, you can turn on this permission?")
@@ -279,7 +279,7 @@ class IOther private constructor(private val context: Context) {
                             "com.huawei.systemmanager.optimize.process.ProtectActivity"
                         )
                         this@IOther.startActivity(intent)
-                        IShared.getInstance(context)
+                        IShared.getInstance(mContext)
                             .putBoolean(IConstant.PERMISSION_AUTO_START, true)
                     }
                     .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }.create()
@@ -289,7 +289,7 @@ class IOther private constructor(private val context: Context) {
     }
 
     fun checkDrawOverlaysPermission(contextActivity: Context): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(context)) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(mContext)) {
             val alertDialog = AlertDialog.Builder(contextActivity)
                 .setTitle("Permission")
                 .setMessage("Application need draw overlays permission, you can turn on this permission?")
@@ -297,7 +297,7 @@ class IOther private constructor(private val context: Context) {
                     dialog.dismiss()
                     val intent = Intent(
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:" + context.packageName)
+                        Uri.parse("package:" + mContext.packageName)
                     )
                     startActivityForResult(
                         contextActivity,
@@ -316,33 +316,33 @@ class IOther private constructor(private val context: Context) {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_PX,
             px.toFloat(),
-            context.resources.displayMetrics
+            mContext.resources.displayMetrics
         ).toInt()
     }
 
     fun refreshGallery(path: String) {
         val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
         mediaScanIntent.data = Uri.fromFile(File(path))
-        context.sendBroadcast(mediaScanIntent)
+        mContext.sendBroadcast(mediaScanIntent)
     }
 
     fun getPathFile(folder: String?): String? {
-        return context.getExternalFilesDir(folder)?.absolutePath
+        return mContext.getExternalFilesDir(folder)?.absolutePath
     }
 
     fun shareBitmapCache() {
-        val imagePath = File(context.cacheDir, "images")
+        val imagePath = File(mContext.cacheDir, "images")
         if (imagePath.exists()) {
             val newFile = File(imagePath, "image_cache.png")
             if (newFile.exists()) {
-                val contentUri = FileProvider.getUriForFile(context, context.packageName, newFile)
+                val contentUri = FileProvider.getUriForFile(mContext, mContext.packageName, newFile)
                 if (contentUri != null) {
                     val shareIntent = Intent()
                     shareIntent.action = Intent.ACTION_SEND
                     shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     shareIntent.setDataAndType(
                         contentUri,
-                        context.contentResolver.getType(contentUri)
+                        mContext.contentResolver.getType(contentUri)
                     )
                     shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri)
                     this.startActivity(Intent.createChooser(shareIntent, "Choose an app"))
@@ -353,13 +353,13 @@ class IOther private constructor(private val context: Context) {
 
     @JvmOverloads
     fun toast(vararg s: Any?, time: Int = Toast.LENGTH_SHORT) {
-        Toast.makeText(context, s.toString(), time).show()
+        Toast.makeText(mContext, arrayToString(s), time).show()
     }
 
     fun about() {
         var version = ""
         try {
-            version = context.packageManager.getPackageInfo(context.packageName, 0).versionName
+            version = mContext.packageManager.getPackageInfo(mContext.packageName, 0).versionName
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
         }
@@ -377,7 +377,7 @@ class IOther private constructor(private val context: Context) {
         emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf(supportEmail))
         emailIntent.putExtra(
             Intent.EXTRA_SUBJECT, "Feedback App: " +
-                    app_name + "(" + context.packageName + ", version: " + version + ")"
+                    app_name + "(" + mContext.packageName + ", version: " + version + ")"
         )
         emailIntent.putExtra(Intent.EXTRA_TEXT, "")
         this.startActivity(Intent.createChooser(emailIntent, "Send mail Report App !"))
@@ -388,7 +388,7 @@ class IOther private constructor(private val context: Context) {
     }
 
     fun saveBitmapCache(bitmap: Bitmap, fileName: String, compressFormat: Bitmap.CompressFormat) {
-        val filePath = File(context.cacheDir, "images")
+        val filePath = File(mContext.cacheDir, "images")
         saveBitmap(bitmap, filePath, fileName, compressFormat)
     }
 
@@ -397,7 +397,7 @@ class IOther private constructor(private val context: Context) {
     }
 
     fun saveBitmapCachePNG(bitmap: Bitmap, fileName: String) {
-        val filePath = File(context.cacheDir, "images")
+        val filePath = File(mContext.cacheDir, "images")
         saveBitmap(bitmap, filePath, fileName, Bitmap.CompressFormat.PNG)
     }
 
@@ -421,7 +421,7 @@ class IOther private constructor(private val context: Context) {
     }
 
     fun getDirCacheFile(folder: String, fileName: String, fileNameExtension: String): String {
-        val filePath = File(context.cacheDir, folder)
+        val filePath = File(mContext.cacheDir, folder)
         val file = File(filePath.toString() + IConstant.SLASH + fileName + fileNameExtension)
         return file.absolutePath
     }
@@ -449,12 +449,28 @@ class IOther private constructor(private val context: Context) {
             return hex
         }
 
+        private fun arrayToString(vararg objects: Any?): String {
+            if (objects.isEmpty()) {
+                return ""
+            }
+            val result = StringBuilder()
+            var i = 0
+            while (true) {
+                val objectTrim = objects[i].toString().trim { it <= ' ' }
+                if (i == objects.size - 1) {
+                    return result.append(objectTrim).toString()
+                }
+                result.append(objectTrim).append(IConstant.SPACE)
+                i++
+            }
+        }
+
         fun drawableToBitmap(drawable: Drawable): Bitmap? {
             if (drawable is BitmapDrawable) {
                 return drawable.bitmap
             }
-            var bitmap: Bitmap? = null
-            if (drawable.intrinsicWidth * drawable.intrinsicHeight != 0) {
+            val bitmap: Bitmap?
+            if (drawable.intrinsicWidth > 0 && drawable.intrinsicHeight > 0) {
                 bitmap = Bitmap.createBitmap(
                     drawable.intrinsicWidth,
                     drawable.intrinsicHeight,
@@ -463,6 +479,8 @@ class IOther private constructor(private val context: Context) {
                 val canvas = Canvas(bitmap!!)
                 drawable.setBounds(0, 0, canvas.width, canvas.height)
                 drawable.draw(canvas)
+            }else{
+                bitmap = null
             }
             return bitmap
         }

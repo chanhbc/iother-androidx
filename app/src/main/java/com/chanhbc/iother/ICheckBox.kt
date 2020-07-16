@@ -4,15 +4,13 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Typeface
 import android.util.AttributeSet
-import androidx.appcompat.widget.AppCompatTextView
-import com.google.android.gms.ads.formats.MediaView
-import com.google.android.gms.ads.formats.NativeAd
+import androidx.appcompat.widget.AppCompatCheckBox
 
-open class ITextView @JvmOverloads constructor(
+open class ICheckBox @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = android.R.attr.textViewStyle
-) : AppCompatTextView(context, attrs, defStyleAttr) {
+    defStyleAttr: Int = android.R.attr.buttonStyle
+) : AppCompatCheckBox(context, attrs, defStyleAttr) {
 
     init {
         init(context, attrs)
@@ -26,13 +24,13 @@ open class ITextView @JvmOverloads constructor(
         try {
             val textStyle =
                 attrs.getAttributeIntValue(IConstant.ANDROID_SCHEMA, "textStyle", Typeface.NORMAL)
-            val attributes = context.obtainStyledAttributes(attrs, R.styleable.ITextView)
-            val fontName = attributes.getString(R.styleable.ITextView_itv_font_name)
+            val attributes = context.obtainStyledAttributes(attrs, R.styleable.ICheckBox)
+            val fontName = attributes.getString(R.styleable.ICheckBox_icb_font_name)
             val typeface: Typeface? = if (fontName.isNullOrEmpty()) {
-                val fontDefault = attributes.getInt(R.styleable.ITextView_itv_font_default, -1)
+                val fontDefault = attributes.getInt(R.styleable.ICheckBox_icb_font_default, -1)
                 IFontUtil.getTypeface(context, fontDefault)
             } else {
-                val format = attributes.getInt(R.styleable.ITextView_itv_font_format, -1)
+                val format = attributes.getInt(R.styleable.ICheckBox_icb_font_format, -1)
                 IFontUtil.getTypeface(context, fontName, format)
             }
             if (typeface != null) {

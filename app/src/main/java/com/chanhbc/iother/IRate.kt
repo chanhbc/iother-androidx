@@ -34,9 +34,12 @@ class IRate @JvmOverloads constructor(
     init {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.dialog_rate)
-        setCancelable(true)
-        setCanceledOnTouchOutside(true)
         initDialog()
+        setOnDismissListener {
+            if (icb_do_not_show_again.isChecked) {
+                IShared.getInstance(mContext).putBoolean(IConstant.KEY_IS_RATE, true)
+            }
+        }
         if (times > 0) {
             initShowWhenAppOpen(times)
         }
@@ -62,8 +65,10 @@ class IRate @JvmOverloads constructor(
         }
         txt_name_app.text = IOther.getInstance(mContext).appName
         val stars = ratingBar.progressDrawable as LayerDrawable
-        stars.getDrawable(2).colorFilter = PorterDuffColorFilter(Color.parseColor("#ff2d54"), PorterDuff.Mode.SRC_ATOP)
-        stars.getDrawable(0).colorFilter = PorterDuffColorFilter(Color.parseColor("#B0B0B6"), PorterDuff.Mode.SRC_ATOP)
+        stars.getDrawable(2).colorFilter =
+            PorterDuffColorFilter(Color.parseColor("#ff2d54"), PorterDuff.Mode.SRC_ATOP)
+        stars.getDrawable(0).colorFilter =
+            PorterDuffColorFilter(Color.parseColor("#B0B0B6"), PorterDuff.Mode.SRC_ATOP)
         btn_ok.setOnClickListener {
             if (ratingBar.rating == 0f) {
                 Toast.makeText(
@@ -72,8 +77,8 @@ class IRate @JvmOverloads constructor(
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
+                IShared.getInstance(mContext).putBoolean(IConstant.KEY_IS_RATE, true)
                 if (ratingBar.rating > numberStar) {
-                    IShared.getInstance(mContext).putBoolean(IConstant.KEY_IS_RATE, true)
                     IOther.getInstance(mContext).openMarket()
                 } else {
                     IOther.getInstance(mContext).feedback(email)
@@ -120,22 +125,18 @@ class IRate @JvmOverloads constructor(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        try {
-            if (window != null) {
-                window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                window?.setLayout(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-            }
-        } catch (ignored: Exception) {
-
+        if (window != null) {
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            window?.setLayout(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
         }
-
+        setCancelable(true)
+        setCanceledOnTouchOutside(true)
     }
 
     companion object {
-
         private const val KEY_COUNT_OPEN_APP = "key_count_open_app"
         private const val VALUE_COUNT_OPEN_APP_DEFAULT = 0
 

@@ -7,8 +7,8 @@ import java.util.*
 
 @Suppress("unused")
 class IShared @SuppressLint("CommitPrefEdits")
-private constructor(context: Context) : SharedPreferences.OnSharedPreferenceChangeListener {
-    private val mSharedPreferences: SharedPreferences = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
+private constructor(mContext: Context) : SharedPreferences.OnSharedPreferenceChangeListener {
+    private val mSharedPreferences: SharedPreferences = mContext.getSharedPreferences(mContext.packageName, Context.MODE_PRIVATE)
     private val mEditor: SharedPreferences.Editor
 
     private val onISharedListeners = ArrayList<OnISharedListener>()
