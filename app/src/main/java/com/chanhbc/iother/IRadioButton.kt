@@ -9,7 +9,7 @@ import androidx.appcompat.widget.AppCompatRadioButton
 open class IRadioButton @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = android.R.attr.buttonStyle
+    defStyleAttr: Int = android.R.attr.radioButtonStyle
 ) : AppCompatRadioButton(context, attrs, defStyleAttr) {
 
     init {
