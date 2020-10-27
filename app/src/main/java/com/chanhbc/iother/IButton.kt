@@ -9,7 +9,7 @@ import androidx.appcompat.widget.AppCompatButton
 open class IButton @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = android.R.attr.buttonStyle
+    defStyleAttr: Int = R.attr.buttonStyle
 ) : AppCompatButton(context, attrs, defStyleAttr) {
 
     init {

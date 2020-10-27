@@ -9,7 +9,7 @@ import androidx.appcompat.widget.AppCompatCheckBox
 open class ICheckBox @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = android.R.attr.checkboxStyle
+    defStyleAttr: Int = R.attr.checkboxStyle
 ) : AppCompatCheckBox(context, attrs, defStyleAttr) {
 
     init {
