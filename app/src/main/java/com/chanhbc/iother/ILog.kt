@@ -9,7 +9,14 @@ object ILog {
     private var MY_TAG = "bc"
 
     enum class SUB_TYPE {
-        LOG, TAG_LOG, T_LOG, TAG_T_LOG
+        // normal log
+        LOG,
+        // change tag default(BC), tag = objects[0], log
+        TAG_LOG,
+        // location (this) from class, this(class) = objects[0], log
+        T_LOG,
+        // tag, this, log
+        TAG_T_LOG
     }
 
     enum class LOG_TYPE {
@@ -72,84 +79,76 @@ object ILog {
         log(LOG_TYPE.WTF, subType, *objects)
     }
 
-    private fun arrayToString(vararg objects: Any?): String {
-        if (objects.isEmpty()) {
-            return ""
-        }
-        val result = StringBuilder()
-        var i = 0
-        while (true) {
-            val objectTrim = objects[i].toString().trim { it <= ' ' }
-            if (i == objects.size - 1) {
-                return result.append(objectTrim).toString()
-            }
-            result.append(objectTrim).append(IConstant.SPACE)
-            i++
-        }
-    }
-
     private fun log(logType: LOG_TYPE, subType: SUB_TYPE, vararg objects: Any?) {
         if (objects.isEmpty()) {
             log(logType, MY_TAG, "<no log>")
             return
         }
         when (subType) {
-            SUB_TYPE.LOG -> log(logType, MY_TAG, arrayToString(*objects))
+            SUB_TYPE.LOG -> {
+                log(logType, MY_TAG, IOther.arrayToString(*objects))
+            }
 
-            SUB_TYPE.T_LOG -> if (objects.size > 1) {
-                val cls = objects[0]
-                if(cls is Any){
-                    log(
-                        logType,
-                        MY_TAG,
-                        cls.javaClass.simpleName + "-" + arrayToString(
-                            *objects.copyOfRange(1, objects.size)
+            SUB_TYPE.T_LOG -> {
+                if (objects.size > 1) {
+                    val cls = objects[0]
+                    if(cls is Any){
+                        log(
+                            logType,
+                            MY_TAG,
+                            cls.javaClass.simpleName + "-" + IOther.arrayToString(
+                                *objects.copyOfRange(1, objects.size)
+                            )
                         )
-                    )
-                }else{
-                    log(
-                        logType,
-                        MY_TAG,
-                        null + "-" + arrayToString(
-                            *objects.copyOfRange(1, objects.size)
+                    }else{
+                        log(
+                            logType,
+                            MY_TAG,
+                            null + "-" + IOther.arrayToString(
+                                *objects.copyOfRange(1, objects.size)
+                            )
                         )
-                    )
+                    }
+                } else {
+                    log(logType, MY_TAG, IOther.arrayToString(*objects))
                 }
-            } else {
-                log(logType, MY_TAG, arrayToString(*objects))
             }
 
-            SUB_TYPE.TAG_LOG -> if (objects.size > 1) {
-                log(
-                    logType,
-                    objects[0].toString(),
-                    arrayToString(*objects.copyOfRange(1, objects.size))
-                )
-            } else {
-                log(logType, MY_TAG, arrayToString(*objects))
-            }
-
-            SUB_TYPE.TAG_T_LOG -> if (objects.size > 2) {
-                val cls = objects[1]
-                if(cls is Any) {
+            SUB_TYPE.TAG_LOG -> {
+                if (objects.size > 1) {
                     log(
                         logType,
                         objects[0].toString(),
-                        cls.javaClass.simpleName + "-" + arrayToString(
-                            *objects.copyOfRange(2, objects.size)
-                        )
+                        IOther.arrayToString(*objects.copyOfRange(1, objects.size))
                     )
-                }else{
-                    log(
-                        logType,
-                        objects[0].toString(),
-                        null + "-" + arrayToString(
-                            *objects.copyOfRange(2, objects.size)
-                        )
-                    )
+                } else {
+                    log(logType, MY_TAG, IOther.arrayToString(*objects))
                 }
-            } else {
-                log(logType, MY_TAG, arrayToString(*objects))
+            }
+
+            SUB_TYPE.TAG_T_LOG -> {
+                if (objects.size > 2) {
+                    val cls = objects[1]
+                    if(cls is Any) {
+                        log(
+                            logType,
+                            objects[0].toString(),
+                            cls.javaClass.simpleName + "-" + IOther.arrayToString(
+                                *objects.copyOfRange(2, objects.size)
+                            )
+                        )
+                    }else{
+                        log(
+                            logType,
+                            objects[0].toString(),
+                            null + "-" + IOther.arrayToString(
+                                *objects.copyOfRange(2, objects.size)
+                            )
+                        )
+                    }
+                } else {
+                    log(logType, MY_TAG, IOther.arrayToString(*objects))
+                }
             }
         }
     }
@@ -159,17 +158,29 @@ object ILog {
             return
         }
         when (logType) {
-            LOG_TYPE.D -> Log.d(TAG, objLog.toString())
+            LOG_TYPE.D -> {
+                Log.d(TAG, objLog.toString())
+            }
 
-            LOG_TYPE.E -> Log.e(TAG, objLog.toString())
+            LOG_TYPE.E -> {
+                Log.e(TAG, objLog.toString())
+            }
 
-            LOG_TYPE.I -> Log.i(TAG, objLog.toString())
+            LOG_TYPE.I -> {
+                Log.i(TAG, objLog.toString())
+            }
 
-            LOG_TYPE.V -> Log.v(TAG, objLog.toString())
+            LOG_TYPE.V -> {
+                Log.v(TAG, objLog.toString())
+            }
 
-            LOG_TYPE.W -> Log.w(TAG, objLog.toString())
+            LOG_TYPE.W -> {
+                Log.w(TAG, objLog.toString())
+            }
 
-            LOG_TYPE.WTF -> Log.wtf(TAG, objLog.toString())
+            LOG_TYPE.WTF -> {
+                Log.wtf(TAG, objLog.toString())
+            }
         }
     }
 

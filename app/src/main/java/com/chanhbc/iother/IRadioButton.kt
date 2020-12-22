@@ -6,6 +6,7 @@ import android.graphics.Typeface
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatRadioButton
 
+@Suppress("unused")
 open class IRadioButton @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

@@ -6,6 +6,7 @@ import android.graphics.Typeface
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatEditText
 
+@Suppress("unused")
 open class IEditText @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

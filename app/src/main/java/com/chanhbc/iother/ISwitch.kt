@@ -6,6 +6,7 @@ import android.graphics.Typeface
 import android.util.AttributeSet
 import androidx.appcompat.widget.SwitchCompat
 
+@Suppress("unused")
 open class ISwitch @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

@@ -351,8 +351,18 @@ class IOther private constructor(private val mContext: Context) {
         }
     }
 
+    enum class TT_TIME {
+        SHORT,
+        LONG
+    }
+
     @JvmOverloads
-    fun toast(vararg s: Any?, time: Int = Toast.LENGTH_SHORT) {
+    fun toast(vararg s: Any?, type: TT_TIME = TT_TIME.SHORT) {
+        val time = if (type == TT_TIME.SHORT) {
+            Toast.LENGTH_SHORT
+        } else {
+            Toast.LENGTH_LONG
+        }
         Toast.makeText(mContext, arrayToString(s), time).show()
     }
 
@@ -369,7 +379,6 @@ class IOther private constructor(private val mContext: Context) {
     fun feedback(email: String) {
         feedback(appName, email, versionName)
     }
-
 
     fun feedback(app_name: String, supportEmail: String, version: String) {
         val emailIntent = Intent(Intent.ACTION_SENDTO)
@@ -449,7 +458,7 @@ class IOther private constructor(private val mContext: Context) {
             return hex
         }
 
-        private fun arrayToString(vararg objects: Any?): String {
+        fun arrayToString(vararg objects: Any?): String {
             if (objects.isEmpty()) {
                 return ""
             }
@@ -479,7 +488,7 @@ class IOther private constructor(private val mContext: Context) {
                 val canvas = Canvas(bitmap!!)
                 drawable.setBounds(0, 0, canvas.width, canvas.height)
                 drawable.draw(canvas)
-            }else{
+            } else {
                 bitmap = null
             }
             return bitmap
@@ -493,6 +502,7 @@ class IOther private constructor(private val mContext: Context) {
             val path = (Environment.getExternalStorageDirectory().toString()
                     + IConstant.SLASH + Environment.DIRECTORY_PICTURES + IConstant.SLASH)
             val filePath = File(path)
+
             @SuppressLint("SimpleDateFormat")
             val sdf = SimpleDateFormat("_HH_mm_ss_dd_MM_yyyy")
             val currentDateAndTime = sdf.format(Date())

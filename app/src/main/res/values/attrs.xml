@@ -89,4 +89,8 @@
             <enum name="light" value="5"/>
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="SwipeViewPager">
+        <attr name="swipe_enable" format="boolean" />
+    </declare-styleable>
 </resources>

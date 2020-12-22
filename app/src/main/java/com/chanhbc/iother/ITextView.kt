@@ -8,6 +8,7 @@ import androidx.appcompat.widget.AppCompatTextView
 import com.google.android.gms.ads.formats.MediaView
 import com.google.android.gms.ads.formats.NativeAd
 
+@Suppress("unused")
 open class ITextView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

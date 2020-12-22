@@ -6,6 +6,7 @@ import android.graphics.Typeface
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatCheckBox
 
+@Suppress("unused")
 open class ICheckBox @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
