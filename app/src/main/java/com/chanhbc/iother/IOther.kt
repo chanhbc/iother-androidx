@@ -357,7 +357,7 @@ class IOther private constructor(private val mContext: Context) {
     }
 
     fun toast(vararg s: Any?) {
-        toast(TT_TIME.SHORT, s)
+        toast(TT_TIME.SHORT, *s)
     }
 
     fun toast(type: TT_TIME, vararg s: Any?) {
@@ -366,7 +366,7 @@ class IOther private constructor(private val mContext: Context) {
         } else {
             Toast.LENGTH_LONG
         }
-        Toast.makeText(mContext, arrayToString(s), time).show()
+        Toast.makeText(mContext, arrayToString(*s.copyOfRange(1, s.size)), time).show()
     }
 
     fun about() {
