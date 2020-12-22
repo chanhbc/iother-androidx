@@ -356,8 +356,11 @@ class IOther private constructor(private val mContext: Context) {
         LONG
     }
 
-    @JvmOverloads
-    fun toast(vararg s: Any?, type: TT_TIME = TT_TIME.SHORT) {
+    fun toast(vararg s: Any?) {
+        toast(TT_TIME.SHORT, s)
+    }
+
+    fun toast(type: TT_TIME, vararg s: Any?) {
         val time = if (type == TT_TIME.SHORT) {
             Toast.LENGTH_SHORT
         } else {
