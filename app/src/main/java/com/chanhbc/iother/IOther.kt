@@ -366,7 +366,7 @@ class IOther private constructor(private val mContext: Context) {
         } else {
             Toast.LENGTH_LONG
         }
-        Toast.makeText(mContext, arrayToString(*s.copyOfRange(1, s.size)), time).show()
+        Toast.makeText(mContext, arrayToString(*s), time).show()
     }
 
     fun about() {
