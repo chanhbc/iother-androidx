@@ -65,7 +65,8 @@
         android:layout_marginTop="2dp"
         android:layout_marginBottom="2dp"
         android:layout_gravity="center_horizontal"
-        android:text="@string/don_t_show_again" />
+        android:text="@string/don_t_show_again"
+        app:icb_font_default="medium"/>
 
     <View
         android:layout_width="match_parent"
@@ -90,7 +91,7 @@
             android:textAllCaps="false"
             android:textColor="#ff2d54"
             android:textSize="@dimen/_18ssp"
-            app:itv_font_default="bold" />
+            app:ibt_font_default="bold" />
 
         <View
             android:layout_width="@dimen/_1sdp"
@@ -109,7 +110,7 @@
             android:textAllCaps="false"
             android:textColor="#ff2d54"
             android:textSize="@dimen/_18ssp"
-            app:itv_font_default="bold" />
+            app:ibt_font_default="bold" />
 
     </LinearLayout>
 
