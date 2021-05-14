@@ -13,7 +13,6 @@
         android:layout_width="@dimen/_60sdp"
         android:layout_height="@dimen/_60sdp"
         android:layout_gravity="center_horizontal"
-
         android:layout_marginTop="@dimen/_16sdp"
         android:contentDescription="@string/cd_icon" />
 
@@ -27,6 +26,7 @@
         android:paddingStart="@dimen/_8sdp"
         android:paddingEnd="@dimen/_8sdp"
         android:text="@string/title_dialog"
+        android:textStyle="normal"
         android:textColor="#212121"
         android:textSize="@dimen/_20ssp"
         app:itv_font_default="bold" />

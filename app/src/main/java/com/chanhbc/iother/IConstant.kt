@@ -13,6 +13,8 @@ object IConstant {
     const val FONTS_FOLDER = "fonts"
     const val JSON_FOLDER = "json"
     const val THEMES_FOLDER = "themes"
+    const val THEME_FOLDER = "theme"
+    const val THUMB_FOLDER = "thumb"
     const val BACKGROUND_FOLDER = "background"
 
     const val EMPTY = ""
@@ -54,10 +56,13 @@ object IConstant {
 
     const val TTF = "ttf"
     const val OTF = "otf"
-    const val FONT_DEFAULT_BOLD = "Quicksand_Bold.ttf"
-    const val FONT_DEFAULT_SEMI_BOLD = "Quicksand_SemiBold.ttf"
-    const val FONT_DEFAULT_MEDIUM = "Quicksand_Medium.ttf"
-    const val FONT_DEFAULT_REGULAR = "Quicksand_Regular.ttf"
-    const val FONT_DEFAULT_LIGHT = "Quicksand_Light.ttf"
+    const val EX_TTF = ".ttf"
+    const val EX_OTF = ".otf"
+    const val FONT_QS_BOLD = "Quicksand_Bold.ttf"
+    const val FONT_QS_SEMI_BOLD = "Quicksand_SemiBold.ttf"
+    const val FONT_QS_MEDIUM = "Quicksand_Medium.ttf"
+    const val FONT_QS_REGULAR = "Quicksand_Regular.ttf"
+    const val FONT_QS_LIGHT = "Quicksand_Light.ttf"
+    const val FONT_QS_VARIABLE = "Quicksand_Variable.ttf"
     const val KEY_IS_RATE = "key_is_rate"
 }

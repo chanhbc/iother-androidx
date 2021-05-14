@@ -12,6 +12,7 @@
             <enum name="medium" value="3"/>
             <enum name="regular" value="4"/>
             <enum name="light" value="5"/>
+            <enum name="variable" value="6"/>
         </attr>
     </declare-styleable>
 
@@ -27,6 +28,7 @@
             <enum name="medium" value="3"/>
             <enum name="regular" value="4"/>
             <enum name="light" value="5"/>
+            <enum name="variable" value="6"/>
         </attr>
     </declare-styleable>
 
@@ -42,6 +44,7 @@
             <enum name="medium" value="3"/>
             <enum name="regular" value="4"/>
             <enum name="light" value="5"/>
+            <enum name="variable" value="6"/>
         </attr>
     </declare-styleable>
 
@@ -57,6 +60,7 @@
             <enum name="medium" value="3"/>
             <enum name="regular" value="4"/>
             <enum name="light" value="5"/>
+            <enum name="variable" value="6"/>
         </attr>
     </declare-styleable>
 
@@ -72,6 +76,7 @@
             <enum name="medium" value="3"/>
             <enum name="regular" value="4"/>
             <enum name="light" value="5"/>
+            <enum name="variable" value="6"/>
         </attr>
     </declare-styleable>
 
@@ -87,6 +92,7 @@
             <enum name="medium" value="3"/>
             <enum name="regular" value="4"/>
             <enum name="light" value="5"/>
+            <enum name="variable" value="6"/>
         </attr>
     </declare-styleable>
 
