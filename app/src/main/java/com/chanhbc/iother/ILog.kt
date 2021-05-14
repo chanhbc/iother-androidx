@@ -11,10 +11,13 @@ object ILog {
     enum class SUB_TYPE {
         // normal log
         LOG,
+
         // change tag default(BC), tag = objects[0], log
         TAG_LOG,
+
         // location (this) from class, this(class) = objects[0], log
         T_LOG,
+
         // tag, this, log
         TAG_T_LOG
     }
@@ -92,7 +95,7 @@ object ILog {
             SUB_TYPE.T_LOG -> {
                 if (objects.size > 1) {
                     val cls = objects[0]
-                    if(cls is Any){
+                    if (cls is Any) {
                         log(
                             logType,
                             MY_TAG,
@@ -100,7 +103,7 @@ object ILog {
                                 *objects.copyOfRange(1, objects.size)
                             )
                         )
-                    }else{
+                    } else {
                         log(
                             logType,
                             MY_TAG,
@@ -129,7 +132,7 @@ object ILog {
             SUB_TYPE.TAG_T_LOG -> {
                 if (objects.size > 2) {
                     val cls = objects[1]
-                    if(cls is Any) {
+                    if (cls is Any) {
                         log(
                             logType,
                             objects[0].toString(),
@@ -137,7 +140,7 @@ object ILog {
                                 *objects.copyOfRange(2, objects.size)
                             )
                         )
-                    }else{
+                    } else {
                         log(
                             logType,
                             objects[0].toString(),
