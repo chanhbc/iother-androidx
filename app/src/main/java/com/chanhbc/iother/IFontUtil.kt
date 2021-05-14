@@ -2,11 +2,12 @@ package com.chanhbc.iother
 
 import android.content.Context
 import android.graphics.Typeface
+import java.lang.Exception
 
 @Suppress("unused", "MemberVisibilityCanBePrivate", "SameParameterValue")
 object IFontUtil {
     fun getTypeface(context: Context, name: String): Typeface? {
-        var typeface = Typeface.createFromAsset(context.assets, name)
+        var typeface = tryGetTypeface(context, name)
         if (typeface != null) {
             return typeface
         } else {
@@ -16,7 +17,7 @@ object IFontUtil {
                     val tmp = name.substring(0, lastIndex) + IConstant.EX_OTF
                     getTypeface(context, tmp)
                 } else {
-                    Typeface.createFromAsset(context.assets, name)
+                    tryGetTypeface(context, name)
                 }
                 return typeface
             } else {
@@ -27,6 +28,14 @@ object IFontUtil {
                 }
                 return typeface
             }
+        }
+    }
+
+    private fun tryGetTypeface(context: Context, name: String): Typeface? {
+        return try {
+            Typeface.createFromAsset(context.assets, name)
+        } catch (e: Exception) {
+            null
         }
     }
 
