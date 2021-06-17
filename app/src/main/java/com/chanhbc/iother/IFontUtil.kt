@@ -13,7 +13,7 @@ object IFontUtil {
         } else {
             if (name.contains(IConstant.SLASH) && name.contains(IConstant.PERIOD)) {
                 typeface = if (name.endsWith(IConstant.EX_TTF, true)) {
-                    val lastIndex = name.lastIndexOf(IConstant.EX_TTF, 0, true)
+                    val lastIndex = name.lastIndexOf(IConstant.EX_TTF, name.lastIndex, true)
                     val tmp = name.substring(0, lastIndex) + IConstant.EX_OTF
                     getTypeface(context, tmp)
                 } else {
