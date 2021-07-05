@@ -1,6 +1,6 @@
 package com.chanhbc.iother
 
-@Suppress("unused")
+@Suppress("unused", "ClassName")
 object IConstant {
 
     const val INDEX_NOT_FOUND = -1
@@ -16,6 +16,7 @@ object IConstant {
     const val THEME_FOLDER = "theme"
     const val THUMB_FOLDER = "thumb"
     const val BACKGROUND_FOLDER = "background"
+    const val KEY_FIRST_OPEN_NEW_VERSION = "key_first_open_new_version"
 
     const val EMPTY = ""
     const val ELLIPSES = "…"
@@ -65,4 +66,22 @@ object IConstant {
     const val FONT_QS_LIGHT = "Quicksand_Light.ttf"
     const val FONT_QS_VARIABLE = "Quicksand_Variable.ttf"
     const val KEY_IS_RATE = "key_is_rate"
+
+    const val DRAWABLE = "drawable"
+    const val ANIM = "anim"
+    const val COLOR = "color"
+    const val FONT = "font"
+    const val LAYOUT = "layout"
+    const val MENU = "menu"
+    const val RAW = "raw"
+    const val VALUES = "values"
+    const val XML = "xml"
+    const val DIMEN = "dimen"
+    const val STRING = "string"
+    const val STYLE = "style"
+
+    enum class TT_TIME {
+        SHORT,
+        LONG
+    }
 }

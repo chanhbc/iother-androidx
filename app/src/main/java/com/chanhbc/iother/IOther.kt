@@ -3,6 +3,7 @@ package com.chanhbc.iother
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.ActivityManager
+import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
@@ -12,6 +13,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.NinePatchDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -19,7 +21,6 @@ import android.os.Vibrator
 import android.provider.Settings
 import android.util.TypedValue
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import java.io.*
@@ -55,16 +56,12 @@ class IOther private constructor(private val mContext: Context) {
             return ""
         }
 
-    val versionCode: Int
+    val versionCode: Long
         get() {
             try {
                 val packageName = mContext.packageName
                 val info = mContext.packageManager.getPackageInfo(packageName, 0)
-                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    info.longVersionCode.toInt()
-                } else {
-                    info.versionCode
-                }
+                return info.longVersionCode
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
             }
@@ -120,13 +117,13 @@ class IOther private constructor(private val mContext: Context) {
     /**
      * MyService.class.toString().replace("class ", "")
      */
-
+    @Deprecated("As of {@link android.os.Build.VERSION_CODES#O}")
     @SuppressLint("DefaultLocale")
     fun checkServiceRunning(str: String): Boolean {
         val manager = mContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val services = manager.getRunningServices(Integer.MAX_VALUE)
         for (info in services) {
-            if (info.service.className.toUpperCase() == str.toUpperCase()) {
+            if (info.service.className.equals(str, ignoreCase = true)) {
                 return true
             }
         }
@@ -243,7 +240,43 @@ class IOther private constructor(private val mContext: Context) {
         }
     }
 
-    fun checkPermission(contextActivity: Context) {
+    fun checkPermission(context: Context, permission: String): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return true
+        }
+        return context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun isFirstOpenNewVersion(): Boolean {
+        return isFirstOpenNewVersion("is_first_open_new_version")
+    }
+
+    fun isFirstOpenNewVersion(key: String): Boolean {
+        val versionNameOld = IShared.getInstance(mContext).getString(key)
+        if (versionName != versionNameOld) {
+            IShared.getInstance(mContext).putString(key, versionName)
+            return true
+        }
+        return false
+    }
+
+    fun getBitmapNineFromAsset(filePath: String): Bitmap? {
+        var bitmap: Bitmap? = null
+        try {
+            val inputStream = mContext.assets.open(filePath)
+            val drawable = Drawable.createFromStream(inputStream, null)
+            if (drawable is NinePatchDrawable) {
+                drawable.setBounds(0, 0, 200, 200)
+            }
+            bitmap = drawableToBitmap(drawable)
+            inputStream.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return bitmap
+    }
+
+    fun checkPermissionAutoStart(contextActivity: Context) {
         val manufacturerXiaomi = "xiaomi"
         val manufacturerHuawei = "huawei"
         if (manufacturerXiaomi.equals(Build.MANUFACTURER, ignoreCase = true)) {
@@ -320,6 +353,7 @@ class IOther private constructor(private val mContext: Context) {
         ).toInt()
     }
 
+    @Deprecated("No used. Callers should migrate to inserting items directly into {@link MediaStore }")
     fun refreshGallery(path: String) {
         val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
         mediaScanIntent.data = Uri.fromFile(File(path))
@@ -351,17 +385,12 @@ class IOther private constructor(private val mContext: Context) {
         }
     }
 
-    enum class TT_TIME {
-        SHORT,
-        LONG
-    }
-
     fun toast(vararg s: Any?) {
-        toast(TT_TIME.SHORT, *s)
+        toast(IConstant.TT_TIME.SHORT, *s)
     }
 
-    fun toast(type: TT_TIME, vararg s: Any?) {
-        val time = if (type == TT_TIME.SHORT) {
+    fun toast(type: IConstant.TT_TIME, vararg s: Any?) {
+        val time = if (type == IConstant.TT_TIME.SHORT) {
             Toast.LENGTH_SHORT
         } else {
             Toast.LENGTH_LONG
@@ -370,13 +399,7 @@ class IOther private constructor(private val mContext: Context) {
     }
 
     fun about() {
-        var version = ""
-        try {
-            version = mContext.packageManager.getPackageInfo(mContext.packageName, 0).versionName
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-        }
-        toast(version)
+        toast(versionName)
     }
 
     fun feedback(email: String) {
@@ -395,30 +418,42 @@ class IOther private constructor(private val mContext: Context) {
         this.startActivity(Intent.createChooser(emailIntent, "Send mail Report App !"))
     }
 
-    fun saveBitmapCache(bitmap: Bitmap, compressFormat: Bitmap.CompressFormat) {
-        saveBitmapCache(bitmap, "image_cache", compressFormat)
-    }
-
-    fun saveBitmapCache(bitmap: Bitmap, fileName: String, compressFormat: Bitmap.CompressFormat) {
+    fun saveBitmapCache(
+        bitmap: Bitmap, fileName: String, compressFormat: Bitmap.CompressFormat,
+        callback: (isDone: Boolean, path: String?) -> Unit
+    ) {
         val filePath = File(mContext.cacheDir, "images")
-        saveBitmap(bitmap, filePath, fileName, compressFormat)
+        saveBitmap(bitmap, filePath, fileName, compressFormat, callback)
     }
 
-    fun saveBitmapCachePNG(bitmap: Bitmap) {
-        saveBitmapCache(bitmap, "image_cache", Bitmap.CompressFormat.PNG)
+    fun saveBitmapCache(
+        bitmap: Bitmap, compressFormat: Bitmap.CompressFormat,
+        callback: (isDone: Boolean, path: String?) -> Unit
+    ) {
+        saveBitmapCache(bitmap, "image_cache", compressFormat, callback)
     }
 
-    fun saveBitmapCachePNG(bitmap: Bitmap, fileName: String) {
+    fun saveBitmapCachePNG(
+        bitmap: Bitmap,
+        callback: (isDone: Boolean, path: String?) -> Unit
+    ) {
+        saveBitmapCache(bitmap, "image_cache", Bitmap.CompressFormat.PNG, callback)
+    }
+
+    fun saveBitmapCachePNG(
+        bitmap: Bitmap, fileName: String,
+        callback: (isDone: Boolean, path: String?) -> Unit
+    ) {
         val filePath = File(mContext.cacheDir, "images")
-        saveBitmap(bitmap, filePath, fileName, Bitmap.CompressFormat.PNG)
+        saveBitmap(bitmap, filePath, fileName, Bitmap.CompressFormat.PNG, callback)
     }
 
     fun getDirCacheImage(fileName: String, compressFormat: Bitmap.CompressFormat): String {
-        val fileNameExtension = when (compressFormat) {
+        val fileNameExtension: String = when (compressFormat) {
             Bitmap.CompressFormat.JPEG -> {
-                ".jpeg"
+                ".jpg"
             }
-            Bitmap.CompressFormat.WEBP -> {
+            Bitmap.CompressFormat.WEBP_LOSSLESS, Bitmap.CompressFormat.WEBP_LOSSY -> {
                 ".webp"
             }
             else -> {
@@ -438,6 +473,34 @@ class IOther private constructor(private val mContext: Context) {
         return file.absolutePath
     }
 
+    fun getRawIdFromName(name: String): Int {
+        return getResIdFromName(name, IConstant.RAW)
+    }
+
+    fun getDimenIdFromName(name: String): Int {
+        return getResIdFromName(name, IConstant.DIMEN)
+    }
+
+    fun getStringIdFromName(name: String): Int {
+        return getResIdFromName(name, IConstant.STRING)
+    }
+
+    fun getDrawableIdFromName(name: String): Int {
+        return getResIdFromName(name, IConstant.DRAWABLE)
+    }
+
+    fun getStyleIdFromName(name: String): Int {
+        return getResIdFromName(name, IConstant.STYLE)
+    }
+
+    fun getResIdFromName(name: String, folder: String): Int {
+        return getResIdFromName(name, folder, mContext.packageName)
+    }
+
+    fun getResIdFromName(name: String, folder: String, packageName: String): Int {
+        return mContext.resources.getIdentifier(name, folder, packageName)
+    }
+
     companion object {
         @SuppressLint("StaticFieldLeak")
         private lateinit var instance: IOther
@@ -449,16 +512,35 @@ class IOther private constructor(private val mContext: Context) {
             return instance
         }
 
-        fun convertPercentToHex(percent: Float): String {
-            var hexInt = (percent * 255).toInt()
-            if (hexInt > 255) {
-                hexInt = 255
-            }
-            var hex = Integer.toHexString(hexInt)
+        /*
+        * value from [0:255]
+        * hex: value [00:FF]
+        * */
+        fun convertAlphaToHex(alpha: Int): String {
+            var hex = Integer.toHexString(alpha)
             if (hex.length < 2) {
-                hex = "0" + Integer.toHexString(hexInt)
+                hex = "0" + Integer.toHexString(alpha)
             }
             return hex
+        }
+
+        /*
+        * value from [0:100]
+        * hex: value [00:FF]
+        * */
+        fun convertPercentToHex(percent: Float): String {
+            val alpha: Int = (255 * when {
+                percent < 0 -> {
+                    0F
+                }
+                percent > 100 -> {
+                    100F
+                }
+                else -> {
+                    percent
+                }
+            }).toInt()
+            return convertAlphaToHex(alpha)
         }
 
         fun arrayToString(vararg objects: Any?): String {
@@ -497,11 +579,17 @@ class IOther private constructor(private val mContext: Context) {
             return bitmap
         }
 
-        fun saveBitmapPNG(bitmap: Bitmap) {
-            saveBitmap(bitmap, Bitmap.CompressFormat.PNG)
+        fun saveBitmapPNG(
+            bitmap: Bitmap,
+            callback: (isDone: Boolean, path: String?) -> Unit
+        ) {
+            saveBitmap(bitmap, Bitmap.CompressFormat.PNG, callback)
         }
 
-        fun saveBitmap(bitmap: Bitmap, compressFormat: Bitmap.CompressFormat) {
+        fun saveBitmap(
+            bitmap: Bitmap, compressFormat: Bitmap.CompressFormat,
+            callback: (isDone: Boolean, path: String?) -> Unit
+        ) {
             val path = (Environment.getExternalStorageDirectory().toString()
                     + IConstant.SLASH + Environment.DIRECTORY_PICTURES + IConstant.SLASH)
             val filePath = File(path)
@@ -510,79 +598,101 @@ class IOther private constructor(private val mContext: Context) {
             val sdf = SimpleDateFormat("_HH_mm_ss_dd_MM_yyyy")
             val currentDateAndTime = sdf.format(Date())
             val fileName = "IMG$currentDateAndTime"
-            saveBitmap(bitmap, filePath, fileName, compressFormat)
+            saveBitmap(bitmap, filePath, fileName, compressFormat, callback)
         }
 
-        fun saveBitmapPNG(bitmap: Bitmap, fileName: String) {
-            saveBitmap(bitmap, fileName, Bitmap.CompressFormat.PNG)
+        fun saveBitmapPNG(
+            bitmap: Bitmap, fileName: String,
+            callback: (isDone: Boolean, path: String?) -> Unit
+        ) {
+            saveBitmap(bitmap, fileName, Bitmap.CompressFormat.PNG, callback)
         }
 
-        fun saveBitmap(bitmap: Bitmap, fileName: String, compressFormat: Bitmap.CompressFormat) {
+        fun saveBitmap(
+            bitmap: Bitmap, fileName: String, compressFormat: Bitmap.CompressFormat,
+            callback: (isDone: Boolean, path: String?) -> Unit
+        ) {
             val path = (Environment.getExternalStorageDirectory().toString()
                     + IConstant.SLASH + Environment.DIRECTORY_PICTURES + IConstant.SLASH)
             val filePath = File(path)
-            saveBitmap(bitmap, filePath, fileName, compressFormat)
+            saveBitmap(bitmap, filePath, fileName, compressFormat, callback)
         }
 
-        fun saveBitmapPNG(bitmap: Bitmap, folder: String, fileName: String) {
-            saveBitmap(bitmap, folder, fileName, Bitmap.CompressFormat.PNG)
+        fun saveBitmapPNG(
+            bitmap: Bitmap, folder: String, fileName: String,
+            callback: (isDone: Boolean, path: String?) -> Unit
+        ) {
+            saveBitmap(bitmap, folder, fileName, Bitmap.CompressFormat.PNG, callback)
         }
 
         fun saveBitmap(
             bitmap: Bitmap,
             folder: String,
             fileName: String,
-            compressFormat: Bitmap.CompressFormat
+            compressFormat: Bitmap.CompressFormat,
+            callback: (isDone: Boolean, path: String?) -> Unit
         ) {
             val path = (Environment.getExternalStorageDirectory().toString()
                     + IConstant.SLASH + folder + IConstant.SLASH)
             val filePath = File(path)
-            saveBitmap(bitmap, filePath, fileName, compressFormat)
+            saveBitmap(bitmap, filePath, fileName, compressFormat, callback)
         }
 
-        fun saveBitmapPNG(bitmap: Bitmap, filePath: File, fileName: String) {
-            saveBitmap(bitmap, filePath, fileName, Bitmap.CompressFormat.PNG)
+        fun saveBitmapPNG(
+            bitmap: Bitmap, filePath: File, fileName: String,
+            callback: (isDone: Boolean, path: String?) -> Unit
+        ) {
+            saveBitmap(bitmap, filePath, fileName, Bitmap.CompressFormat.PNG, callback)
         }
 
         fun saveBitmap(
             bitmap: Bitmap,
             filePath: File,
             fileName: String,
-            compressFormat: Bitmap.CompressFormat
+            compressFormat: Bitmap.CompressFormat,
+            callback: (isDone: Boolean, path: String?) -> Unit
         ) {
-            try {
-                if (!filePath.exists()) {
-                    if (!filePath.mkdirs()) {
-                        ILog.e("create directory fail")
+            Thread {
+                try {
+                    val fileNameExtension: String = when (compressFormat) {
+                        Bitmap.CompressFormat.JPEG -> {
+                            ".jpg"
+                        }
+                        Bitmap.CompressFormat.WEBP_LOSSLESS, Bitmap.CompressFormat.WEBP_LOSSY -> {
+                            ".webp"
+                        }
+                        else -> {
+                            ".png"
+                        }
                     }
-                }
-                val fileNameExtension: String = when (compressFormat) {
-                    Bitmap.CompressFormat.JPEG -> ".jpg"
-
-                    Bitmap.CompressFormat.WEBP -> ".webp"
-
-                    else -> ".png"
-                }
-                val file =
-                    File(filePath.toString() + IConstant.SLASH + fileName + fileNameExtension)
-                if (file.exists()) {
-                    if (!file.delete()) {
-                        ILog.e("delete \"$fileName\" error")
+                    if (!filePath.exists()) {
+                        if (!filePath.mkdirs()) {
+                            ILog.e("create directory fail")
+                        }
                     }
+                    val file =
+                        File(filePath.toString() + IConstant.SLASH + fileName + fileNameExtension)
+                    if (file.exists()) {
+                        if (!file.delete()) {
+                            ILog.e("delete \"$fileName\" error")
+                        }
+                    }
+                    val stream = FileOutputStream(file)
+                    bitmap.compress(compressFormat, 100, stream)
+                    stream.close()
+                    callback.invoke(true, file.absolutePath)
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    callback.invoke(false, null)
                 }
-                val stream = FileOutputStream(file)
-                bitmap.compress(compressFormat, 100, stream)
-                stream.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
+            }.start()
         }
 
         fun getBitmapResize(bitmap: Bitmap, max: Int, filter: Boolean): Bitmap {
             val wb = bitmap.width
             val hb = bitmap.height
-            val maxb = if (wb > hb) wb else hb
-            val r = maxb.toFloat() / max
+            val maxWb = if (wb > hb) wb else hb
+            val r = maxWb.toFloat() / max
             val w = (wb / r).toInt()
             val h = (hb / r).toInt()
             return Bitmap.createScaledBitmap(bitmap, w, h, filter)
@@ -601,11 +711,9 @@ class IOther private constructor(private val mContext: Context) {
             var tmMilli = timeMilli
             tmMilli /= 1000 // milli second
             var tm = ""
-            val s: Long
-            var m: Long
             val h: Long
-            s = tmMilli % 60
-            m = (tmMilli - s) / 60
+            val s: Long = tmMilli % 60
+            var m: Long = (tmMilli - s) / 60
             if (m >= 60) {
                 h = m / 60
                 m %= 60
@@ -630,10 +738,9 @@ class IOther private constructor(private val mContext: Context) {
             val ml = (tmMilli % 1000).toInt()
             tmMilli /= 1000 // milli second
             var tm = ""
-            val s: Long
             var m: Long
             val h: Long
-            s = tmMilli % 60
+            val s: Long = tmMilli % 60
             m = (tmMilli - s) / 60
             if (m >= 60) {
                 h = m / 60

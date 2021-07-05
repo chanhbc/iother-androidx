@@ -13,7 +13,7 @@ import android.view.Window
 import android.widget.LinearLayout
 import android.widget.RatingBar
 import android.widget.Toast
-import kotlinx.android.synthetic.main.dialog_rate.*
+import com.chanhbc.iother.databinding.DialogRateBinding
 
 @Suppress("unused", "MemberVisibilityCanBePrivate", "SameParameterValue")
 class IRate @JvmOverloads constructor(
@@ -23,6 +23,7 @@ class IRate @JvmOverloads constructor(
 ) : Dialog(mContext) {
     private var numberStar = 3
     private var isExit: Boolean = false
+    private val mBinding = DialogRateBinding.inflate(layoutInflater)
 
     val isRate: Boolean
         get() = isRate(mContext)
@@ -33,10 +34,9 @@ class IRate @JvmOverloads constructor(
 
     init {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        setContentView(R.layout.dialog_rate)
         initDialog()
         setOnDismissListener {
-            if (icb_do_not_show_again.isChecked) {
+            if (mBinding.icbDoNotShowAgain.isChecked) {
                 IShared.getInstance(mContext).putBoolean(IConstant.KEY_IS_RATE, true)
             }
         }
@@ -61,16 +61,16 @@ class IRate @JvmOverloads constructor(
     private fun initDialog() {
         val drawable = IOther.getInstance(mContext).applicationDrawable
         if (drawable != null) {
-            img_icon_app.setImageDrawable(drawable)
+            mBinding.imgIconApp.setImageDrawable(drawable)
         }
-        txt_name_app.text = IOther.getInstance(mContext).appName
-        val stars = ratingBar.progressDrawable as LayerDrawable
+        mBinding.txtNameApp.text = IOther.getInstance(mContext).appName
+        val stars = mBinding.ratingBar.progressDrawable as LayerDrawable
         stars.getDrawable(2).colorFilter =
             PorterDuffColorFilter(Color.parseColor("#ff2d54"), PorterDuff.Mode.SRC_ATOP)
         stars.getDrawable(0).colorFilter =
             PorterDuffColorFilter(Color.parseColor("#B0B0B6"), PorterDuff.Mode.SRC_ATOP)
-        btn_ok.setOnClickListener {
-            if (ratingBar.rating == 0f) {
+        mBinding.btnOk.setOnClickListener {
+            if (mBinding.ratingBar.rating == 0f) {
                 Toast.makeText(
                     mContext,
                     mContext.getString(R.string.plz_rate_5_star),
@@ -78,7 +78,7 @@ class IRate @JvmOverloads constructor(
                 ).show()
             } else {
                 IShared.getInstance(mContext).putBoolean(IConstant.KEY_IS_RATE, true)
-                if (ratingBar.rating > numberStar) {
+                if (mBinding.ratingBar.rating > numberStar) {
                     IOther.getInstance(mContext).openMarket()
                 } else {
                     IOther.getInstance(mContext).feedback(email)
@@ -86,15 +86,15 @@ class IRate @JvmOverloads constructor(
                 dismiss()
             }
         }
-        btn_cancel.setOnClickListener {
+        mBinding.btnCancel.setOnClickListener {
             dismiss()
             if (isExit) {
                 finish()
             }
         }
-        ratingBar.onRatingBarChangeListener =
+        mBinding.ratingBar.onRatingBarChangeListener =
             RatingBar.OnRatingBarChangeListener { _, rating, _ ->
-                btn_ok.text = if (rating > numberStar)
+                mBinding.btnOk.text = if (rating > numberStar)
                     mContext.getString(R.string.rate)
                 else
                     mContext.getString(R.string.feedback)
@@ -103,7 +103,7 @@ class IRate @JvmOverloads constructor(
     }
 
     private fun setRateNumber(rateNumber: Int) {
-        ratingBar.numStars = rateNumber
+        mBinding.ratingBar.numStars = rateNumber
     }
 
     private fun finish() {
@@ -119,7 +119,7 @@ class IRate @JvmOverloads constructor(
         } else {
             R.string.cancel
         }
-        btn_cancel.setText(textId)
+        mBinding.btnCancel.setText(textId)
         this.show()
     }
 

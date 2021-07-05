@@ -12,7 +12,7 @@ open class IApp : Application() {
     companion object {
         private lateinit var instance: IApp
 
-        val context: Context
+        val mContext: Context
             @Synchronized get() = instance
     }
 }
