@@ -364,27 +364,6 @@ class IOther private constructor(private val mContext: Context) {
         return mContext.getExternalFilesDir(folder)?.absolutePath
     }
 
-    fun shareBitmapCache() {
-        val imagePath = File(mContext.cacheDir, "images")
-        if (imagePath.exists()) {
-            val newFile = File(imagePath, "image_cache.png")
-            if (newFile.exists()) {
-                val contentUri = FileProvider.getUriForFile(mContext, mContext.packageName, newFile)
-                if (contentUri != null) {
-                    val shareIntent = Intent()
-                    shareIntent.action = Intent.ACTION_SEND
-                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    shareIntent.setDataAndType(
-                        contentUri,
-                        mContext.contentResolver.getType(contentUri)
-                    )
-                    shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri)
-                    this.startActivity(Intent.createChooser(shareIntent, "Choose an app"))
-                }
-            }
-        }
-    }
-
     fun toast(vararg s: Any?) {
         toast(IConstant.TT_TIME.SHORT, *s)
     }
@@ -418,33 +397,79 @@ class IOther private constructor(private val mContext: Context) {
         this.startActivity(Intent.createChooser(emailIntent, "Send mail Report App !"))
     }
 
-    fun saveBitmapCache(
-        bitmap: Bitmap, fileName: String, compressFormat: Bitmap.CompressFormat,
-        callback: (isDone: Boolean, path: String?) -> Unit
-    ) {
-        val filePath = File(mContext.cacheDir, "images")
-        saveBitmap(bitmap, filePath, fileName, compressFormat, callback)
+    fun shareBitmapCache() {
+        val imagePath = File(mContext.cacheDir, "images")
+        val fileShare = File(imagePath, "image_cache.png")
+        if (fileShare.exists()) {
+            shareBitmapCache(fileShare)
+        }
+    }
+
+    fun shareBitmapCache(filePath: String) {
+        val fileShare = File(filePath)
+        if (fileShare.exists()) {
+            shareBitmapCache(fileShare)
+        }
+    }
+
+    fun shareBitmapCache(fileShare: File) {
+        val contentUri = FileProvider.getUriForFile(mContext, mContext.packageName, fileShare)
+        if (contentUri != null) {
+            val shareIntent = Intent()
+            shareIntent.action = Intent.ACTION_SEND
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            shareIntent.setDataAndType(
+                contentUri,
+                mContext.contentResolver.getType(contentUri)
+            )
+            shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri)
+            this.startActivity(Intent.createChooser(shareIntent, "Choose an app: "))
+        }
     }
 
     fun saveBitmapCache(
         bitmap: Bitmap, compressFormat: Bitmap.CompressFormat,
         callback: (isDone: Boolean, path: String?) -> Unit
     ) {
-        saveBitmapCache(bitmap, "image_cache", compressFormat, callback)
+        saveBitmapCache(bitmap, IConstant.IMAGE_CACHE_FILE, compressFormat, callback)
     }
 
     fun saveBitmapCachePNG(
         bitmap: Bitmap,
         callback: (isDone: Boolean, path: String?) -> Unit
     ) {
-        saveBitmapCache(bitmap, "image_cache", Bitmap.CompressFormat.PNG, callback)
+        saveBitmapCache(bitmap, IConstant.IMAGE_CACHE_FILE, Bitmap.CompressFormat.PNG, callback)
+    }
+
+    fun saveBitmapCache(
+        bitmap: Bitmap, fileName: String, compressFormat: Bitmap.CompressFormat,
+        callback: (isDone: Boolean, path: String?) -> Unit
+    ) {
+        val filePath = File(mContext.cacheDir, IConstant.IMAGE_FOLDER)
+        saveBitmap(bitmap, filePath, fileName, compressFormat, callback)
     }
 
     fun saveBitmapCachePNG(
         bitmap: Bitmap, fileName: String,
         callback: (isDone: Boolean, path: String?) -> Unit
     ) {
-        val filePath = File(mContext.cacheDir, "images")
+        val filePath = File(mContext.cacheDir, IConstant.IMAGE_FOLDER)
+        saveBitmap(bitmap, filePath, fileName, Bitmap.CompressFormat.PNG, callback)
+    }
+
+    fun saveBitmapCache(
+        bitmap: Bitmap, folder: String, fileName: String, compressFormat: Bitmap.CompressFormat,
+        callback: (isDone: Boolean, path: String?) -> Unit
+    ) {
+        val filePath = File(mContext.cacheDir, folder)
+        saveBitmap(bitmap, filePath, fileName, compressFormat, callback)
+    }
+
+    fun saveBitmapCachePNG(
+        bitmap: Bitmap, folder: String, fileName: String,
+        callback: (isDone: Boolean, path: String?) -> Unit
+    ) {
+        val filePath = File(mContext.cacheDir, folder)
         saveBitmap(bitmap, filePath, fileName, Bitmap.CompressFormat.PNG, callback)
     }
 
@@ -460,7 +485,7 @@ class IOther private constructor(private val mContext: Context) {
                 ".png"
             }
         }
-        return getDirCacheFile("images", fileName, fileNameExtension)
+        return getDirCacheFile(IConstant.IMAGE_FOLDER, fileName, fileNameExtension)
     }
 
     fun getDirCacheImagePNG(fileName: String): String {

@@ -16,6 +16,8 @@ object IConstant {
     const val THEME_FOLDER = "theme"
     const val THUMB_FOLDER = "thumb"
     const val BACKGROUND_FOLDER = "background"
+    const val IMAGE_FOLDER = "image"
+    const val IMAGE_CACHE_FILE = "image_cache"
     const val KEY_FIRST_OPEN_NEW_VERSION = "key_first_open_new_version"
 
     const val EMPTY = ""
