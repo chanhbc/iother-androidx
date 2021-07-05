@@ -474,18 +474,7 @@ class IOther private constructor(private val mContext: Context) {
     }
 
     fun getDirCacheImage(fileName: String, compressFormat: Bitmap.CompressFormat): String {
-        val fileNameExtension: String = when (compressFormat) {
-            Bitmap.CompressFormat.JPEG -> {
-                ".jpg"
-            }
-            Bitmap.CompressFormat.WEBP_LOSSLESS, Bitmap.CompressFormat.WEBP_LOSSY -> {
-                ".webp"
-            }
-            else -> {
-                ".png"
-            }
-        }
-        return getDirCacheFile(IConstant.IMAGE_FOLDER, fileName, fileNameExtension)
+        return getDirCacheFile(IConstant.IMAGE_FOLDER, fileName, getExtensionName(compressFormat))
     }
 
     fun getDirCacheImagePNG(fileName: String): String {
@@ -679,24 +668,13 @@ class IOther private constructor(private val mContext: Context) {
         ) {
             Thread {
                 try {
-                    val fileNameExtension: String = when (compressFormat) {
-                        Bitmap.CompressFormat.JPEG -> {
-                            ".jpg"
-                        }
-                        Bitmap.CompressFormat.WEBP_LOSSLESS, Bitmap.CompressFormat.WEBP_LOSSY -> {
-                            ".webp"
-                        }
-                        else -> {
-                            ".png"
-                        }
-                    }
                     if (!filePath.exists()) {
                         if (!filePath.mkdirs()) {
                             ILog.e("create directory fail")
                         }
                     }
                     val file =
-                        File(filePath.toString() + IConstant.SLASH + fileName + fileNameExtension)
+                        File(filePath.toString() + IConstant.SLASH + fileName + getExtensionName(compressFormat))
                     if (file.exists()) {
                         if (!file.delete()) {
                             ILog.e("delete \"$fileName\" error")
@@ -711,6 +689,20 @@ class IOther private constructor(private val mContext: Context) {
                     callback.invoke(false, null)
                 }
             }.start()
+        }
+
+        fun getExtensionName(compressFormat: Bitmap.CompressFormat): String{
+            return when(compressFormat) {
+                Bitmap.CompressFormat.JPEG -> {
+                    ".jpg"
+                }
+                Bitmap.CompressFormat.PNG -> {
+                    ".png"
+                }
+                else -> {
+                    ".webp"
+                }
+            }
         }
 
         fun getBitmapResize(bitmap: Bitmap, max: Int, filter: Boolean): Bitmap {
